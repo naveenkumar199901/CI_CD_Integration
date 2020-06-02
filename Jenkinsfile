@@ -3,7 +3,7 @@ def mvnHome
 node('node'){
    stage('git checkout'){
       try {
-      git credentialsId: 'Git', url: 'https://github.com/rbngtm1/CI_CD_Integration'
+      git credentialsId: 'Git', url: 'https://github.com/naveenkumar199901/CI_CD_Integration.git'
       } catch(err) {
          sh "echo error in checkout"
       }
@@ -50,20 +50,7 @@ node('node'){
          sh "echo error in docker build and pushing to docker hub"
       }
    }
-
-   //stage('deployment of application') {
-      //try {
-      //  sshagent(['ec2-user-target']){
-           // clone the repo on target in tmp
-       //     sh "ssh -o StrictHostKeyChecking=no ec2-user@10.0.0.163 /tmp/CI_CD_Integration/tomcat.sh"
-       //     sh "scp -o StrictHostKeyChecking=no addressbook_main/target/addressbook.war ec2-user@10.0.0.163:/tmp"
-       //     sh "ssh -o StrictHostKeyChecking=no ec2-user@10.0.0.163 /tmp/CI_CD_Integration/symlink_target.sh"
-      //      }
-       // } catch(err) {
-       //  //  sh "echo error in deployment of an application"
-//}
-  // }
-      
+       
    stage('artifacts to s3') {
       try {
       // you need cloudbees aws credentials

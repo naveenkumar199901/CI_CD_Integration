@@ -1,19 +1,14 @@
-pipeline {
-agent any
-  def mvnHome
-  stages {
-    stage('Clonning Git') {
-         steps {
-            
-            checkout changelog: false, poll: false, scm: [$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'Linux@02', url: 'https://github.com/naveenkumar199901/CI_CD_Integration.git']]]
-		timestamps {
-           
-			}
-			
-         }
-	
-		}
-      stage('maven test'){
+def mvnHome
+node('node'){
+   stage('git checkout'){
+      try {
+      git credentialsId: 'Git', url: 'https://github.com/naveenkumar199901/CI_CD_Integration.git'
+      } catch(err) {
+         sh "echo error in checkout"
+      }
+   }
+  
+   stage('maven test'){
       try {
       mvnHome=tool 'M2_HOME'
       sh "${mvnHome}/bin/mvn --version"
@@ -22,7 +17,8 @@ agent any
          sh "echo error in defining maven"
       }
    }
-	  stage('test case and report'){
+   
+   stage('test case and report'){
       try {
          echo "executing test cases"
          junit allowEmptyResults: true, testResults: 'addressbook_main/target/surefire-reports/*.xml'
@@ -30,8 +26,9 @@ agent any
       } catch(err) {
          throw err
       }
-   } 
-   stage('package and artifacts'){
+   }
+   
+      stage('package and artifacts'){
       try {
          sh "${mvnHome}/bin/mvn clean package -DskipTests=true"
          archiveArtifacts allowEmptyArchive: true, artifacts: 'addressbook_main/target/**/*.war'
@@ -39,11 +36,12 @@ agent any
          sh "echo error in generating artifacts"
       }
    }
-  stage ('docker build and push'){
+
+   stage ('docker build and push'){
       try {
        sh "docker version"
        sh "docker build -t naveenkumar199901/archiveartifacts:newtag -f Dockerfile ."
-       sh "docker run -p 8085:8080 -d naveenkumar199901/archiveartifacts:newtag"
+       sh "docker run -p 8080:8080 -d naveenkumar199901/archiveartifacts:newtag"
        withDockerRegistry(credentialsId: 'Docker-hub') {
        sh "docker push naveenkumar199901/archiveartifacts:newtag"
         }
@@ -51,22 +49,11 @@ agent any
          sh "echo error in docker build and pushing to docker hub"
       }
    }
-     stage('deployment of application') {
-      try {
-        sshagent(['ec2-user-target']){
-           // clone the repo on target in tmp
-            sh "ssh -o StrictHostKeyChecking=no ec2-user@172.31.19.72 /tmp/CI_CD_Integration/tomcat.sh"
-            sh "scp -o StrictHostKeyChecking=no addressbook_main/target/addressbook.war ec2-user@172.31.19.72:/tmp"
-            sh "ssh -o StrictHostKeyChecking=no ec2-user@172.31.19.72 /tmp/CI_CD_Integration/symlink_target.sh"
-            }
-        } catch(err) {
-           sh "echo error in deployment of an application"
-        }
-   }
-	  stage('artifacts to s3') {
+       
+   stage('artifacts to s3') {
       try {
       // you need cloudbees aws credentials
-      withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: '	S3UploadCredentitals', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+      withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'S3UploadCredentitals', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
          sh "aws s3 ls"
          sh "aws s3 cp addressbook_main/target/addressbook.war s3://s2-artifact-naveem/"
          }
@@ -74,8 +61,4 @@ agent any
          sh "echo error in sending artifacts to s3"
       }
    }
-    
-	}	  
-		  
-}	
-		  
+}

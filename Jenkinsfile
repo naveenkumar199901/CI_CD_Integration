@@ -3,7 +3,7 @@ def mvnHome
 node('node'){
    stage('git checkout'){
       try {
-      git credentialsId: 'Git', url: 'https://github.com/rbngtm1/CI_CD_Integration'
+      git credentialsId: 'Git', url: 'https://github.com/naveenkumar199901/CI_CD_Integration.git'
       } catch(err) {
          sh "echo error in checkout"
       }
@@ -41,10 +41,10 @@ node('node'){
    stage ('docker build and push'){
       try {
        sh "docker version"
-       sh "docker build -t rbngtm1/archiveartifacts:newtag -f Dockerfile ."
-       sh "docker run -p 8080:8080 -d rbngtm1/archiveartifacts:newtag"
-       withDockerRegistry(credentialsId: 'docker-hub-registry') {
-       sh "docker push rbngtm1/archiveartifacts:newtag"
+       sh "docker build -t naveenkumar199901/archiveartifacts:newtag -f Dockerfile ."
+       sh "docker run -p 8085:8080 -d naveenkumar199901/archiveartifacts:newtag"
+       withDockerRegistry(credentialsId: 'Docker-hub') {
+       sh "docker push naveenkumar199901/archiveartifacts:newtag"
         }
       } catch(err) {
          sh "echo error in docker build and pushing to docker hub"
@@ -55,9 +55,9 @@ node('node'){
       try {
         sshagent(['ec2-user-target']){
            // clone the repo on target in tmp
-            sh "ssh -o StrictHostKeyChecking=no ec2-user@10.0.0.163 /tmp/CI_CD_Integration/tomcat.sh"
-            sh "scp -o StrictHostKeyChecking=no addressbook_main/target/addressbook.war ec2-user@10.0.0.163:/tmp"
-            sh "ssh -o StrictHostKeyChecking=no ec2-user@10.0.0.163 /tmp/CI_CD_Integration/symlink_target.sh"
+            sh "ssh -o StrictHostKeyChecking=no ec2-user@172.31.19.72 /tmp/CI_CD_Integration/tomcat.sh"
+            sh "scp -o StrictHostKeyChecking=no addressbook_main/target/addressbook.war ec2-user@172.31.19.72:/tmp"
+            sh "ssh -o StrictHostKeyChecking=no ec2-user@172.31.19.72 /tmp/CI_CD_Integration/symlink_target.sh"
             }
         } catch(err) {
            sh "echo error in deployment of an application"
@@ -67,9 +67,9 @@ node('node'){
    stage('artifacts to s3') {
       try {
       // you need cloudbees aws credentials
-      withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'deploytos3', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+      withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: '	S3UploadCredentitals', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
          sh "aws s3 ls"
-         sh "aws s3 cp addressbook_main/target/addressbook.war s3://cloudyeticicd/"
+         sh "aws s3 cp addressbook_main/target/addressbook.war s3://s2-artifact-naveem/"
          }
       } catch(err) {
          sh "echo error in sending artifacts to s3"

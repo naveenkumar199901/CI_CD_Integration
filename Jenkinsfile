@@ -49,18 +49,19 @@ node('master'){
          sh "echo error in docker build and pushing to docker hub"
       }
    }
-        stage('deployment of application') {
-    try {
-       sshagent(['Naveen-Kumar']){
-            clone the repo on target in tmp
-           sh "ssh -o StrictHostKeyChecking=no ec2-user@172.31.19.72 /tmp/CI_CD_Integration/tomcat.sh"
+  stage('deployment of an application'){
+      try {
+         sshagent(['Naveen-Kumar']) {
+            sh "scp -o StrictHostKeyChecking=no tomcat.sh ec2-user@172.31.19.72:/tmp"
+            sh "scp -o StrictHostKeyChecking=no symlink_target.sh ec2-user@172.31.19.72:/tmp"
+            sh "ssh -o StrictHostKeyChecking=no ec2-user@172.31.19.72 /tmp/tomcat.sh"
             sh "scp -o StrictHostKeyChecking=no addressbook_main/target/addressbook.war ec2-user@172.31.19.72:/tmp"
-         sh "ssh -o StrictHostKeyChecking=no ec2-user@172.31.19.72 /tmp/CI_CD_Integration/symlink_target.sh"
-          }
-       } catch(err) {
-       sh "echo error in deployment of an application"
-}
-   } 
+            sh "ssh -o StrictHostKeyChecking=no ec2-user@172.31.19.72 /tmp/symlink_target.sh"
+         }
+      } catch(err){
+         echo "error in deployment of an application"
+      }
+   }
    stage('artifacts to s3') {
       try {
       // you need cloudbees aws credentials

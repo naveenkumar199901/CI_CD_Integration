@@ -1,6 +1,6 @@
 def mvnHome
-
-node('node'){
+agent any
+{
    stage('git checkout'){
       try {
       git credentialsId: 'Git', url: 'https://github.com/naveenkumar199901/CI_CD_Integration.git'

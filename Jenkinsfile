@@ -1,5 +1,5 @@
 def mvnHome
-node('node'){
+node('master'){
    stage('git checkout'){
       try {
       git credentialsId: 'Git', url: 'https://github.com/naveenkumar199901/CI_CD_Integration.git'

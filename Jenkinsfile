@@ -1,6 +1,6 @@
 pipeline {
 agent any
-  
+  def mvnHome
   stages {
     stage('Clonning Git') {
          steps {

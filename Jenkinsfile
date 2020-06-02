@@ -51,7 +51,7 @@ node('master'){
    }
         stage('deployment of application') {
     try {
-       sshagent(['ec2-user-target']){
+       sshagent(['Naveen-Kumar']){
             clone the repo on target in tmp
            sh "ssh -o StrictHostKeyChecking=no ec2-user@172.31.19.72 /tmp/CI_CD_Integration/tomcat.sh"
             sh "scp -o StrictHostKeyChecking=no addressbook_main/target/addressbook.war ec2-user@172.31.19.72:/tmp"

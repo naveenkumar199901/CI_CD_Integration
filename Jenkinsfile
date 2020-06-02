@@ -1,5 +1,4 @@
 def mvnHome
-
 node('node'){
    stage('git checkout'){
       try {

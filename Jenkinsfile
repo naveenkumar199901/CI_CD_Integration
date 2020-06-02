@@ -30,7 +30,7 @@ node('node'){
    
       stage('package and artifacts'){
       try {
-         sh "${mvnHome}/bin/mvn clean package -DskipTests=true"
+         sh "${mvnHome}/bin/mvn clean package install"
          archiveArtifacts allowEmptyArchive: true, artifacts: 'addressbook_main/target/**/*.war'
       } catch(err) {
          sh "echo error in generating artifacts"
@@ -55,7 +55,7 @@ node('node'){
       // you need cloudbees aws credentials
       withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'S3UploadCredentitals', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
          sh "aws s3 ls"
-         sh "aws s3 cp addressbook_main/target/addressbook.war s3://s2-artifact-naveem/"
+         sh "aws s3 cp webapp/target/webapp.war s3://s2-artifact-naveem/"
          }
       } catch(err) {
          sh "echo error in sending artifacts to s3"

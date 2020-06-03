@@ -40,8 +40,9 @@ node('master'){
    stage ('docker build and push'){
       try {
        sh "docker version"
-       sh "docker rm -f relaxed_mahavira"
-       sh "docker images rmi naveenkumar199901/archiveartifacts:newtag "
+       sh "docker stop $(docker ps -a -q)"
+       sh "docker rm $(docker ps -a -q)"
+       sh "docker images rmi -f naveenkumar199901/archiveartifacts:newtag "
        sh "docker images rmi naveenkumar199901/archiveartifacts:newtag "
        sh "docker build -t naveenkumar199901/archiveartifacts:newtag -f Dockerfile ."
        sh "docker run -p 8085:8080 -d naveenkumar199901/archiveartifacts:newtag"

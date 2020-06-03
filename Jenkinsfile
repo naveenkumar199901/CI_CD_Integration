@@ -40,6 +40,7 @@ node('master'){
    stage ('docker build and push'){
       try {
        sh "docker version"
+       sh "docker "
        sh "docker build -t naveenkumar199901/archiveartifacts:newtag -f Dockerfile ."
        sh "docker run -p 8085:8080 -d naveenkumar199901/archiveartifacts:newtag"
        withDockerRegistry(credentialsId: 'Docker-hub') {
@@ -67,7 +68,9 @@ node('master'){
       // you need cloudbees aws credentials
       withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'S3UploadCredentitals', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
          sh "aws s3 ls"
+         sh "aws s3 rm s3://s2-artifact-naveem --recursive"
          sh "aws s3  cp addressbook_main/target/addressbook.war s3://s2-artifact-naveem/"
+         
          }
       } catch(err) {
          sh "echo error in sending artifacts to s3"

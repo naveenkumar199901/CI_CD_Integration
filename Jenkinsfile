@@ -42,8 +42,8 @@ node('master'){
        sh "docker version"
        //sh "docker stop $(docker ps -a -q)"
        //sh "docker rm $(docker ps -a -q)"
-       sh "docker images rmi -f naveenkumar199901/archiveartifacts:newtag "
-       sh "docker images rmi naveenkumar199901/archiveartifacts:newtag "
+       //sh "docker images rmi -f naveenkumar199901/archiveartifacts:newtag "
+      // sh "docker images rmi naveenkumar199901/archiveartifacts:newtag "
        sh "docker build -t naveenkumar199901/archiveartifacts:newtag -f Dockerfile ."
        sh "docker run -p 8085:8080 -d naveenkumar199901/archiveartifacts:newtag"
        withDockerRegistry(credentialsId: 'Docker-hub') {
